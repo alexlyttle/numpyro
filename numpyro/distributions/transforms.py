@@ -29,6 +29,7 @@ __all__ = [
     "AbsTransform",
     "AffineTransform",
     "CholeskyTransform",
+    "CircularTransform",
     "ComposeTransform",
     "CorrCholeskyTransform",
     "CorrMatrixCholeskyTransform",
@@ -356,6 +357,20 @@ class CholeskyTransform(Transform):
         return -n * jnp.log(2) + jnp.sum(
             order * jnp.log(jnp.diagonal(y, axis1=-2, axis2=-1)), axis=-1
         )
+
+
+class CircularTransform(Transform):
+    """ The circular transform looks like circular_transform.png. """
+    codomain = constraints.circular
+
+    def __call__(self, x):
+        return jnp.arctan2(jnp.sin(x), jnp.cos(x))
+
+    def _inverse(self, y):
+        return y
+
+    def log_abs_det_jacobian(self, x, y, intermediates=None):
+        return jnp.zeros(x.shape)
 
 
 class CorrCholeskyTransform(Transform):
@@ -923,6 +938,11 @@ class ConstraintRegistry(object):
 
 
 biject_to = ConstraintRegistry()
+
+
+@biject_to.register(constraints.circular)
+def _transform_to_circular(constraint):
+    return CircularTransform()
 
 
 @biject_to.register(constraints.corr_cholesky)
