@@ -28,6 +28,7 @@
 
 __all__ = [
     "boolean",
+    "circular",
     "corr_cholesky",
     "corr_matrix",
     "dependent",
@@ -450,10 +451,17 @@ class _Sphere(Constraint):
         return jax.numpy.full_like(prototype, prototype.shape[-1] ** (-0.5))
 
 
+class _Circular(_Interval):
+    
+    def __init__(self):
+        super().__init__(-np.pi, np.pi)
+
+
 # TODO: Make types consistent
 # See https://github.com/pytorch/pytorch/issues/50616
 
 boolean = _Boolean()
+circular = _Circular()
 corr_cholesky = _CorrCholesky()
 corr_matrix = _CorrMatrix()
 dependent = _Dependent()
